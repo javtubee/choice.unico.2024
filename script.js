@@ -12,22 +12,32 @@ function mostrarPregunta() {
   });
   html += '</div>';
   container.innerHTML = html;
+
   document.querySelectorAll('.options label').forEach(label => {
     label.onclick = () => {
       const idx = parseInt(label.dataset.index);
       const correcta = q.correcta;
-      label.classList.add(idx === correcta ? 'correct' : 'wrong');
-      if (idx === correcta) score++;
-      setTimeout(() => {
-        if (current < preguntas.length - 1) {
-          current++;
-          mostrarPregunta();
-        } else {
-          container.innerHTML = '';
-          resultado.innerText = `Resultado final: ${score} / ${preguntas.length}`;
-          document.querySelector('.navigation').style.display = 'none';
-        }
-      }, 1000);
+
+      // Limpiar todos los estilos anteriores
+      document.querySelectorAll('.options label').forEach(l => {
+        l.classList.remove('correct', 'wrong', 'selected');
+      });
+
+      // Marcar visualmente
+      if (idx === correcta) {
+        label.classList.add('correct');
+      } else {
+        label.classList.add('wrong');
+        document.querySelectorAll('.options label')[correcta].classList.add('correct');
+      }
+
+      label.classList.add('selected');
+
+      // Sumar puntaje solo si es la primera vez
+      if (!label.classList.contains('respondido')) {
+        if (idx === correcta) score++;
+        label.classList.add('respondido');
+      }
     };
   });
 }
@@ -38,10 +48,15 @@ document.getElementById('prev').onclick = () => {
     mostrarPregunta();
   }
 };
+
 document.getElementById('next').onclick = () => {
   if (current < preguntas.length - 1) {
     current++;
     mostrarPregunta();
+  } else {
+    container.innerHTML = '';
+    resultado.innerText = `Resultado final: ${score} / ${preguntas.length}`;
+    document.querySelector('.navigation').style.display = 'none';
   }
 };
 
